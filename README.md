@@ -7,7 +7,7 @@ $php yii migrate/up --migrationPath=yourMigrationsDir/migrations
 ```
 'modules' => [
     'linkage' => [
-        'class' => 'cabbage\modules\linkage\Module',
+        'class' => 'cabbage\linkage\Module',
     ],
 ]
 

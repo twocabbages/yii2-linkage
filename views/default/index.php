@@ -8,9 +8,9 @@ use kartik\helpers\Html;
             \yii\bootstrap\ActiveForm::begin([
 //                  'action' => Yii::$app->urlManager->createUrl(["/linkage/default/index"]),
             ]);
-            echo \cabbage\modules\linkage\MultiLevelSelect::widget([
+            echo \cabbage\linkage\MultiLevelSelect::widget([
                 'name' => 'User[region_id]',
-                'dataProvider' => 'cabbage\modules\linkage\models\Region',
+                'dataProvider' => 'cabbage\linkage\models\Region',
                 'defaultData' => $defaultData,
             ]);
             echo Html::submitButton();

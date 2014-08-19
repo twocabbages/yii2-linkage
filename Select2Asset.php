@@ -6,7 +6,7 @@
  * Time: 上午8:25
  */
 
-namespace cabbage\modules\linkage;
+namespace cabbage\linkage;
 
 use Yii;
 use yii\web\AssetBundle;

@@ -6,7 +6,7 @@
  * @version 1.0.0
  */
 
-namespace cabbage\modules\linkage;
+namespace cabbage\linkage;
 
 use Yii;
 use yii\helpers\ArrayHelper;

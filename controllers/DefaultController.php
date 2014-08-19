@@ -1,8 +1,8 @@
 <?php
 
-namespace cabbage\modules\linkage\controllers;
+namespace cabbage\linkage\controllers;
 
-use cabbage\modules\linkage\models\Region;
+use cabbage\linkage\models\Region;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\Controller;
@@ -12,7 +12,7 @@ class DefaultController extends Controller
     public function actionIndex()
     {
         return $this->render('index',[
-            'defaultData' => \Yii::$app->request->post('User')['region_id'],
+            'defaultData' => \Yii::$app->request->post('User') ? \Yii::$app->request->post('User')['region_id'] : null,
         ]);
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace cabbage\modules\linkage\models;
+namespace cabbage\linkage\models;
 
 use Yii;
 

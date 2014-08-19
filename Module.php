@@ -1,11 +1,11 @@
 <?php
 
-namespace cabbage\modules\linkage;
+namespace cabbage\linkage;
 
 
 class Module extends \yii\base\Module
 {
-    public $controllerNamespace = 'cabbage\modules\linkage\controllers';
+    public $controllerNamespace = 'cabbage\linkage\controllers';
 
     public function init()
     {
