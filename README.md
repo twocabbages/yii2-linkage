@@ -1,3 +1,8 @@
+## Install
+```
+composer require cabbage/yii2-linkage: "dev-master"
+```
+
 ## Applying Migrations
 ```
 $php yii migrate/up --migrationPath=yourMigrationsDir/migrations
