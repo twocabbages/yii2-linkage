@@ -118,7 +118,7 @@ class MultiLevelSelect extends InputWidget
             $this->defaultData = $this->getDefaultData($this->defaultData);
         }
         if (!isset($this->options['style'])) {
-            $this->options['style'] = 'width: 250px; margin-bottom:15px; margin-right:15px;';
+            $this->options['style'] = 'width: 100%; margin-bottom:15px; margin-right:15px;';
         }
         $this->data = Json::encode(['results'=>$this->data, 'more'=>false]);
         $this->defaultData = Json::encode($this->defaultData);
