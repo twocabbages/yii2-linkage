@@ -1,4 +1,4 @@
-##[Live Demo](http://121.40.80.24/?r=linkage)
+##[Live Demo](http://121.40.80.24/web/?r=linkage)
 
 ## Install
 ```
