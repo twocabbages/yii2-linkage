@@ -218,7 +218,6 @@ function init_select2_child( _select ){
 }
 
 function init_select2( _select, _id ){
-console.log(source_data_{$this->options['id']});
     var _match = /-level-([\d]*)/.exec(_select.attr('id'));
     if(_match){
         var child_id = _match[1];
