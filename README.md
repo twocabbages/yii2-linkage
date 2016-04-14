@@ -15,6 +15,7 @@ $php yii migrate/up --migrationPath=yourMigrationsDir/migrations
 'modules' => [
     'linkage' => [
         'class' => 'cabbage\linkage\Module',
+        //'searchModel' => 'cabbage\linkage\models\Regions',
     ],
 ]
 

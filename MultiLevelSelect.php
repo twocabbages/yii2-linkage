@@ -98,6 +98,9 @@ class MultiLevelSelect extends InputWidget
     {
         parent::init();
 
+        if (!$this->dataProvider) {
+            $this->dataProvider = Yii::$app->getModule("linkage")->searchModel;
+        }
         if (!isset($this->data) && !$this->_hidden && $this->dataProvider === null) {
             throw new InvalidConfigException("No 'data' source found for Select2. Either the 'data' property must be set OR one of 'data', 'query', 'ajax', or 'tags' must be set within 'pluginOptions'.");
         }
@@ -106,43 +109,47 @@ class MultiLevelSelect extends InputWidget
         ) {
             $this->data = ["" => ""] + $this->data;
         }
-        if($this->dataProvider){
+
+        if ($this->dataProvider) {
             $class = $this->dataProvider;
-            $this->data = $this->multiMap($class::find()->where(['parent_id'=>$this->parent_id])->asArray()->all(), ['id'=>'id', 'name'=>'text']);
+            $this->data = $this->multiMap($class::find()->where(['parent_id' => $this->parent_id])->asArray()->all(), ['id' => 'id', 'name' => 'text']);
         }
-        if($this->hasModel()){
+
+        if ($this->hasModel()) {
             $this->name = ArrayHelper::remove($this->options, 'name', Html::getInputName($this->model, $this->attribute));
             $this->defaultData = $this->model[Html::getAttributeName($this->attribute)];
         }
-        if($this->defaultData){
+        if ($this->defaultData) {
             $this->defaultData = $this->getDefaultData($this->defaultData);
         }
         if (!isset($this->options['style'])) {
-            $this->options['style'] = 'width: 100%; margin-bottom:15px; margin-right:15px;';
+            $this->options['style'] = 'margin-bottom:15px; margin-right:15px;';
         }
-        $this->data = Json::encode(['results'=>$this->data, 'more'=>false]);
+        $this->data = Json::encode(['results' => $this->data, 'more' => false]);
         $this->defaultData = Json::encode($this->defaultData);
 
         $this->registerAssets();
         $this->renderInput();
     }
 
-    public function multiMap( $array, $map ){
+    public function multiMap($array, $map)
+    {
         $result = [];
 
-        foreach($array as $k => $v){
-            foreach($map as $key => $value){
+        foreach ($array as $k => $v) {
+            foreach ($map as $key => $value) {
                 $result[$k][$value] = ArrayHelper::getValue($v, $key);
             }
         }
         return $result;
     }
 
-    public function getDefaultData( $id ){
+    public function getDefaultData($id)
+    {
         $result = null;
         $class = $this->dataProvider;
-        if($model = $class::find()->where(['id'=>$id])->one()){
-            if($model->id === 1)  return [];
+        if ($model = $class::find()->where(['id' => $id])->one()) {
+            if ($model->id === 1) return [];
             $parent = $this->getDefaultData($model->parent_id);
             $result = array_merge($parent ? $parent : [], [$model->id]);
         }
