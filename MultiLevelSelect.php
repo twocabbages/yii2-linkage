@@ -8,6 +8,7 @@
 
 namespace cabbage\linkage;
 
+use kartik\select2\ThemeDefaultAsset;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -123,7 +124,7 @@ class MultiLevelSelect extends InputWidget
             $this->defaultData = $this->getDefaultData($this->defaultData);
         }
         if (!isset($this->options['style'])) {
-            $this->options['style'] = 'margin-bottom:15px; margin-right:15px; display:inline-block;';
+            $this->options['style'] = 'margin-right:15px; display:inline-block; width: auto;';
         }
         $this->data = Json::encode(['results' => $this->data, 'more' => false]);
         $this->defaultData = Json::encode($this->defaultData);
@@ -173,11 +174,7 @@ class MultiLevelSelect extends InputWidget
     public function registerAssets()
     {
         $view = $this->getView();
-        if (!empty($this->language) && substr($this->language, 0, 2) != 'en') {
-            Select2Asset::register($view)->js[] = 'select2_locale_' . $this->language . '.js';
-        } else {
-            Select2Asset::register($view);
-        }
+        Select2Asset::register($view);
         $request_url = Yii::$app->urlManager->createUrl([$this->url]);
         $fieldId = str_replace("-", '_', $this->options['id']);
         $view->registerJs(<<<SCRIPT
@@ -185,49 +182,56 @@ var source_data_{$fieldId} = {$this->data};
 var default_data_{$fieldId} = {$this->defaultData};
 var select_level_{$fieldId} = {$this->level};
 
-$("#{$this->options['id']}").select2({
-    data: source_data_{$fieldId},
-})
-function init_select2_child( _select ){
+function templateResult (e) {
+    var _select = $(this);
     var _match = /-level-([\d]*)/.exec(_select.attr('id'));
-    var _level = 0;
-    if(_match && _match[1]){
-        _level = _match[1];
-    }
-    if(select_level_{$fieldId} !== 0 && _level+1>=select_level_{$fieldId}){
-        _select.parent().children('input').last().attr("name", "{$this->name}");
-        return  default_data_{$fieldId} = null;
-    }
-    $.getJSON("{$request_url}&parent_id="+_select.select2("val"), function(data){
-        if(data.results.length > 0){
-
-            var _match = /-level-([\d]*)/.exec(_select.attr('id'));
-            if(_match){
-                var child_id = _select.attr('id').replace(_match[0], '-level-'+ (parseInt(_match[1])+1));
-            }else{
-                var child_id = _select.attr('id') + "-level-1";
-            }
-
-            if($("#"+child_id).length < 1){
-                if(_select.parent().find(".help-block").length > 0) {
-                    _select.parent().find(".help-block").before('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
-                } else {
-                    _select.parent().append('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
-                }
-            }
-            $("#"+child_id).select2({
-                data:data,
-            }).select2("val", data.results[0].id);
-            _select.unbind().on('change', function(e){
-                init_select2_child(_select);
-            })
-            init_select2($("#"+child_id), data.results[0].id);
-        }else{
-            default_data_{$fieldId} = null;
-            _select.parent().children('input').last().attr("name", "{$this->name}");
+        var _level = 0;
+        if(_match && _match[1]){
+            _level = _match[1];
         }
-    })
-}
+        if(select_level_{$fieldId} !== 0 && _level+1>=select_level_{$fieldId}){
+            _select.parent().children('input').last().attr("name", "{$this->name}");
+            return  default_data_{$fieldId} = null;
+        }
+        if(_select.val() == "") return false;
+        $.getJSON("{$request_url}&parent_id="+_select.val(), function(data){
+            if(data.results.length > 0){
+                var _match = /-level-([\d]*)/.exec(_select.attr('id'));
+                if(_match){
+                    var child_id = _select.attr('id').replace(_match[0], '-level-'+ (parseInt(_match[1])+1));
+                }else{
+                    var child_id = _select.attr('id') + "-level-1";
+                }
+
+                if($("#"+child_id).length < 1){
+                    if(_select.parent().find(".help-block").length > 0) {
+                        _select.parent().find(".help-block").before('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
+                    } else {
+                        _select.parent().append('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
+                    }
+                }
+                $("#"+child_id).select2({
+                    data:data['results'],
+                    width: "auto",
+                }).on("change", function() {
+                    templateResult.call(this);
+                }).val(data.results[0].id);
+                init_select2($("#"+child_id), data.results[0].id);
+            } else {
+                default_data_{$fieldId} = null;
+                _select.parent().children('input').last().attr("name", "{$this->name}");
+            }
+        })
+  }
+
+$("#{$this->options['id']}").select2({
+    data: source_data_{$fieldId}['results'],
+    width: "auto",
+    style: "margin-left:5px;",
+}).on("change", function() {
+    templateResult.call(this);
+});
+
 
 function init_select2( _select, _id ){
     var _match = /-level-([\d]*)/.exec(_select.attr('id'));
@@ -237,17 +241,18 @@ function init_select2( _select, _id ){
         var child_id = 0;
     }
     if( default_data_{$fieldId} !=null && default_data_{$fieldId}[child_id] != undefined && default_data_{$fieldId}[child_id] != null ){
-        _select.select2("val", default_data_{$fieldId}[child_id]);
+        _select.val(default_data_{$fieldId}[child_id]);
     }else{
-        _select.select2("val", _id);
+        _select.val(_id);
     }
-
-    init_select2_child(_select);
+    _select.trigger('change');
 }
 if($("#{$this->options['id']}").length>0){
     init_select2($("#{$this->options['id']}"), source_data_{$fieldId}.results[0].id);
 }
 SCRIPT
         );
+
+        $view->registerCss('.select2-container--default {margin-left: 10px; display:inline-block; padding: 0; margin-right: 0;} ');
     }
 }
