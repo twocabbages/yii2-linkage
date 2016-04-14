@@ -123,7 +123,7 @@ class MultiLevelSelect extends InputWidget
             $this->defaultData = $this->getDefaultData($this->defaultData);
         }
         if (!isset($this->options['style'])) {
-            $this->options['style'] = 'margin-bottom:15px; margin-right:15px;';
+            $this->options['style'] = 'margin-bottom:15px; margin-right:15px; display:inline-block;';
         }
         $this->data = Json::encode(['results' => $this->data, 'more' => false]);
         $this->defaultData = Json::encode($this->defaultData);
@@ -179,13 +179,14 @@ class MultiLevelSelect extends InputWidget
             Select2Asset::register($view);
         }
         $request_url = Yii::$app->urlManager->createUrl([$this->url]);
+        $fieldId = str_replace("-", '_', $this->options['id']);
         $view->registerJs(<<<SCRIPT
-var source_data_{$this->options['id']} = {$this->data};
-var default_data_{$this->options['id']} = {$this->defaultData};
-var select_level_{$this->options['id']} = {$this->level};
+var source_data_{$fieldId} = {$this->data};
+var default_data_{$fieldId} = {$this->defaultData};
+var select_level_{$fieldId} = {$this->level};
 
 $("#{$this->options['id']}").select2({
-    data: source_data_{$this->options['id']},
+    data: source_data_{$fieldId},
 })
 function init_select2_child( _select ){
     var _match = /-level-([\d]*)/.exec(_select.attr('id'));
@@ -193,9 +194,9 @@ function init_select2_child( _select ){
     if(_match && _match[1]){
         _level = _match[1];
     }
-    if(select_level_{$this->options['id']} !== 0 && _level+1>=select_level_{$this->options['id']}){
+    if(select_level_{$fieldId} !== 0 && _level+1>=select_level_{$fieldId}){
         _select.parent().children('input').last().attr("name", "{$this->name}");
-        return  default_data_{$this->options['id']} = null;
+        return  default_data_{$fieldId} = null;
     }
     $.getJSON("{$request_url}&parent_id="+_select.select2("val"), function(data){
         if(data.results.length > 0){
@@ -208,7 +209,11 @@ function init_select2_child( _select ){
             }
 
             if($("#"+child_id).length < 1){
-                _select.parent().append('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
+                if(_select.parent().find(".help-block").length > 0) {
+                    _select.parent().find(".help-block").before('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
+                } else {
+                    _select.parent().append('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
+                }
             }
             $("#"+child_id).select2({
                 data:data,
@@ -218,7 +223,7 @@ function init_select2_child( _select ){
             })
             init_select2($("#"+child_id), data.results[0].id);
         }else{
-            default_data_{$this->options['id']} = null;
+            default_data_{$fieldId} = null;
             _select.parent().children('input').last().attr("name", "{$this->name}");
         }
     })
@@ -231,8 +236,8 @@ function init_select2( _select, _id ){
     }else{
         var child_id = 0;
     }
-    if( default_data_{$this->options['id']} !=null && default_data_{$this->options['id']}[child_id] != undefined && default_data_{$this->options['id']}[child_id] != null ){
-        _select.select2("val", default_data_{$this->options['id']}[child_id]);
+    if( default_data_{$fieldId} !=null && default_data_{$fieldId}[child_id] != undefined && default_data_{$fieldId}[child_id] != null ){
+        _select.select2("val", default_data_{$fieldId}[child_id]);
     }else{
         _select.select2("val", _id);
     }
@@ -240,7 +245,7 @@ function init_select2( _select, _id ){
     init_select2_child(_select);
 }
 if($("#{$this->options['id']}").length>0){
-    init_select2($("#{$this->options['id']}"), source_data_{$this->options['id']}.results[0].id);
+    init_select2($("#{$this->options['id']}"), source_data_{$fieldId}.results[0].id);
 }
 SCRIPT
         );
