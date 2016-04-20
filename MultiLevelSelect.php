@@ -124,7 +124,7 @@ class MultiLevelSelect extends InputWidget
             $this->defaultData = $this->getDefaultData($this->defaultData);
         }
         if (!isset($this->options['style'])) {
-            $this->options['style'] = 'margin-right:15px; display:inline-block; width: auto;';
+            $this->options['style'] = 'display:inline-block; width: auto;';
         }
         $this->data = Json::encode(['results' => $this->data, 'more' => false]);
         $this->defaultData = Json::encode($this->defaultData);
@@ -210,6 +210,7 @@ function templateResult (e) {
                         _select.parent().append('<input id="'+ child_id +'" style="{$this->options['style']}"/>');
                     }
                 }
+                $("#"+child_id).unbind();
                 $("#"+child_id).select2({
                     data:data['results'],
                     width: "auto",
@@ -252,7 +253,5 @@ if($("#{$this->options['id']}").length>0){
 }
 SCRIPT
         );
-
-        $view->registerCss('.select2-container--default {margin-left: 10px; display:inline-block; padding: 0; margin-right: 0;} ');
     }
 }
